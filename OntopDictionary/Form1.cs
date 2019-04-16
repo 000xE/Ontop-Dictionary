@@ -72,5 +72,10 @@ namespace OntopDictionary
                 findDefinition();
             }
         }
+
+        private void textBox1_Leave(object sender, EventArgs e)
+        {
+            textBox1.Focus();
+        }
     }
 }
