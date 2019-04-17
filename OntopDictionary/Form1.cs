@@ -86,9 +86,15 @@ namespace OntopDictionary
                         trimmed = trimmed.Remove(0, 1); //Remove it
                     }
 
-                    //Console.WriteLine(trimmed);
-                    lookup jsonWord = JsonConvert.DeserializeObject<lookup>(trimmed); //Make a new object using the definition
-                    definition += findDefinition(jsonWord); //Add to the definition
+                    try
+                    {
+                        lookup jsonWord = JsonConvert.DeserializeObject<lookup>(trimmed); //Make a new object using the definition
+                        definition += findDefinition(jsonWord); //Add to the definition
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
                 }
             }
 
