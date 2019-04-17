@@ -17,7 +17,7 @@ namespace OntopDictionary
     public partial class Form1 : Form
     {
         //true -- OFFLINE, false -- ONLINE
-        bool offline = true;
+        bool offline = false;
 
         Dictionary<string, string> dictionary = new Dictionary<string, string>(); //Dictionary to store the dictionary!
 
@@ -77,7 +77,7 @@ namespace OntopDictionary
             {
                 string trimmed = rawDef.Trim(charsToTrim); //Remove additional characters
 
-                if (rawDef.Length > 0) //To ensure there's a definition
+                if (rawDef.Length > 2) //To ensure there's a definition
                 {
                     trimmed += "}"; //Since it initially removes it when splitting
 
@@ -119,6 +119,11 @@ namespace OntopDictionary
         private void textBox1_Leave(object sender, EventArgs e)
         {
             textBox1.Focus(); //To perma forcus the textbox
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            offline = checkBox1.Checked; //To set state
         }
     }
 }
