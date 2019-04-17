@@ -16,6 +16,7 @@ namespace OntopDictionary
 {
     public partial class Form1 : Form
     {
+        //true -- OFFLINE, false -- ONLINE
         bool offline = true;
 
         Dictionary<string, string> dictionary = new Dictionary<string, string>(); //Dictionary to store the dictionary!
@@ -49,7 +50,7 @@ namespace OntopDictionary
                 {
                     definition = offlineAccess(word.ToUpper()); //Convert to uppercase since the dictionary is in uppercase
                 }
-                else //For online
+                else //For online (Inaccurate, sorry!)
                 {
                     string url = "https://owlbot.info/api/v2/dictionary/"; //API
                     string fullLink = url + word + "?format=json"; //API in use
