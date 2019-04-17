@@ -10,79 +10,114 @@ using System.Windows.Forms;
 using System.Net;
 using System.Web;
 using Newtonsoft.Json;
+using System.IO;
 
 namespace OntopDictionary
 {
     public partial class Form1 : Form
     {
-        string url = "https://owlbot.info/api/v2/dictionary/";
-        string word;
-        string definition;
+        bool offline = true;
+
+        Dictionary<string, string> dictionary = new Dictionary<string, string>(); //Dictionary to store the dictionary!
 
         public Form1()
         {
             InitializeComponent();
+
+            using (StreamReader r = new StreamReader(Application.StartupPath + @"/Resources/dictionary.json")) //Reads the dictionary
+            {
+                string json = r.ReadToEnd(); //from start to end
+                dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(json); //Deserializes into the Dictionary
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            findDefinition();
+            textBox2.Clear(); //Clears the textbox first
+            textBox2.Text = findDefinition(); //To find the definition
         }
 
-        private void findDefinition()
+        private string findDefinition()
         {
-            if (textBox1.Text.Length > 0)
+            string definition = "No definition!";
+
+            if (textBox1.Text.Length > 0) //Ensure the user typed something
             {
-                word = textBox1.Text;
-                string fullLink = url + word + "?format=json";
+                string word = textBox1.Text; //Grab the word 
 
-                WebClient wc = new WebClient();
-                string rawText = wc.DownloadString(fullLink);
-
-                //definition = getFullDefinition(rawText);
-                //textBox2.Text = definition;
-
-                textBox2.Clear();
-                makeObject(rawText);
-            }
-        }
-
-        private void makeObject(string raw)
-        {
-            string[] definitions = raw.Split('}');
-            char[] charsToTrim = { '[', ']'};
-
-            foreach (string rawDef in definitions)
-            {
-                if (rawDef.Length > 2)
+                if (offline) //For offline
                 {
-                    string trimmed = rawDef.Trim(charsToTrim) + "}";
+                    definition = offlineAccess(word.ToUpper()); //Convert to uppercase since the dictionary is in uppercase
+                }
+                else //For online
+                {
+                    string url = "https://owlbot.info/api/v2/dictionary/"; //API
+                    string fullLink = url + word + "?format=json"; //API in use
 
-
-                    if (trimmed[0] == ',')
+                    using (WebClient wc = new WebClient())
                     {
-                        trimmed = trimmed.Remove(0, 1);
+                        string rawText = wc.DownloadString(fullLink); //Download the json file as a string
+                        definition = onlineAccess(rawText); //Send it to be deserialized
+                    }                  
+                }
+            }
+
+            return definition;
+        }
+
+        private string onlineAccess(string raw)
+        {
+            string definition = "";
+
+            string[] definitions = raw.Split('}'); //Splits the raw data into seperate definitions
+            char[] charsToTrim = { '[', ']'}; //To trim additional characters
+
+            foreach (string rawDef in definitions) //Go through each definition from the raw data
+            {
+                string trimmed = rawDef.Trim(charsToTrim); //Remove additional characters
+
+                if (rawDef.Length > 0) //To ensure there's a definition
+                {
+                    trimmed += "}"; //Since it initially removes it when splitting
+
+                    if (trimmed[0] == ',') //Check if there's a comma at start
+                    {
+                        trimmed = trimmed.Remove(0, 1); //Remove it
                     }
 
                     //Console.WriteLine(trimmed);
-                    lookup jsonWord = JsonConvert.DeserializeObject<lookup>(trimmed);
-                    findDefinition(jsonWord);
-                }
-                else
-                {
-                    textBox2.AppendText("No definition found");
+                    lookup jsonWord = JsonConvert.DeserializeObject<lookup>(trimmed); //Make a new object using the definition
+                    definition += findDefinition(jsonWord); //Add to the definition
                 }
             }
+
+            return definition;
         }
 
-        private void findDefinition(lookup jsonWord)
+        private string offlineAccess(string word)
         {
-            textBox2.AppendText("Type: " + jsonWord.type + "\r\n" + "Definition: " + jsonWord.definition + "\r\n" + "Example: " +  jsonWord.example + "\r\n\r\n");
+            string definition = "";
+
+            if (dictionary.ContainsKey(word)) //If the dictionary has the word
+            {
+                definition = dictionary[word]; //Set the definiton
+            }
+
+            return definition;
+        }
+
+        private string findDefinition(lookup jsonWord)
+        { //Online access only
+            //To print the definition along with type and example
+            string definition = ("Type: " + jsonWord.type.ToUpper() + "\r\n" + "Definition: " + jsonWord.definition + "\r\n" + "Example: " +  jsonWord.example + "\r\n")
+            + ("--------------------------------------------------------------------------------------------------------------------------------------\r\n");
+
+            return definition;
         }
 
         private void textBox1_Leave(object sender, EventArgs e)
         {
-            textBox1.Focus();
+            textBox1.Focus(); //To perma forcus the textbox
         }
     }
 }
