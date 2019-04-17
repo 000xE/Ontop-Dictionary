@@ -43,13 +43,13 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(473, 20);
             this.textBox1.TabIndex = 0;
-            this.textBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox1_KeyDown);
             this.textBox1.Leave += new System.EventHandler(this.textBox1_Leave);
             // 
             // button1
             // 
             this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
             this.button1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1.ForeColor = System.Drawing.Color.White;
             this.button1.Location = new System.Drawing.Point(0, 253);
             this.button1.Name = "button1";
@@ -61,7 +61,7 @@
             // 
             // textBox2
             // 
-            this.textBox2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
+            this.textBox2.BackColor = System.Drawing.Color.Black;
             this.textBox2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBox2.ForeColor = System.Drawing.Color.White;
             this.textBox2.Location = new System.Drawing.Point(0, 20);
@@ -74,6 +74,7 @@
             // 
             // Form1
             // 
+            this.AcceptButton = this.button1;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(473, 276);
@@ -82,7 +83,7 @@
             this.Controls.Add(this.textBox1);
             this.Name = "Form1";
             this.Opacity = 0.6D;
-            this.Text = "Form1";
+            this.Text = "On-top Dictionary";
             this.TopMost = true;
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net;
 using System.Web;
+using Newtonsoft.Json;
 
 namespace OntopDictionary
 {
@@ -33,44 +34,50 @@ namespace OntopDictionary
             if (textBox1.Text.Length > 0)
             {
                 word = textBox1.Text;
+                string fullLink = url + word + "?format=json";
 
                 WebClient wc = new WebClient();
+                string rawText = wc.DownloadString(fullLink);
 
-                definition = getFullDefinition(wc.DownloadString(url + word + "?format=json"));
+                //definition = getFullDefinition(rawText);
+                //textBox2.Text = definition;
 
-                textBox2.Text = definition;
+                textBox2.Clear();
+                makeObject(rawText);
             }
         }
 
-        private string getFullDefinition(string raw)
+        private void makeObject(string raw)
         {
-            string definition = "";
+            string[] definitions = raw.Split('}');
+            char[] charsToTrim = { '[', ']'};
 
-            if (raw.IndexOf("definition") != -1)
+            foreach (string rawDef in definitions)
             {
-                char[] charsToTrim = { '[', ']', '{', '}', ','};
-                string[] definitions = raw.Split('}');
-                foreach (string full in definitions)
+                if (rawDef.Length > 2)
                 {
-                    string trimmed = full.Trim(charsToTrim);
-                    definition += trimmed + "\r\n\r\n";
-                }
-                //definition = raw; //raw.Substring(raw.IndexOf("definition"));
-            }
-            else
-            {
-                definition = "No definition";
-            }
+                    string trimmed = rawDef.Trim(charsToTrim) + "}";
 
-            return definition;
+
+                    if (trimmed[0] == ',')
+                    {
+                        trimmed = trimmed.Remove(0, 1);
+                    }
+
+                    //Console.WriteLine(trimmed);
+                    lookup jsonWord = JsonConvert.DeserializeObject<lookup>(trimmed);
+                    findDefinition(jsonWord);
+                }
+                else
+                {
+                    textBox2.AppendText("No definition found");
+                }
+            }
         }
 
-        private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        private void findDefinition(lookup jsonWord)
         {
-            if (e.KeyCode == Keys.Enter)
-            {
-                findDefinition();
-            }
+            textBox2.AppendText("Type: " + jsonWord.type + "\r\n" + "Definition: " + jsonWord.definition + "\r\n" + "Example: " +  jsonWord.example + "\r\n\r\n");
         }
 
         private void textBox1_Leave(object sender, EventArgs e)
