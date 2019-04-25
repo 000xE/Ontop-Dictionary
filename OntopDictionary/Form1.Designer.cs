@@ -101,6 +101,7 @@
             this.Opacity = 0.6D;
             this.Text = "On-top Dictionary";
             this.TopMost = true;
+            this.Deactivate += new System.EventHandler(this.Form1_Deactivate);
             this.ResumeLayout(false);
             this.PerformLayout();
 

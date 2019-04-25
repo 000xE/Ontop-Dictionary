@@ -93,11 +93,10 @@ namespace OntopDictionary
 
                     using (WebClient wc = new WebClient())
                     {
-                        wc.Proxy = null; //Faster
                         try
                         { //Try get the definition
+                            wc.Proxy = null; //Faster
                             var rawText = wc.DownloadData(new Uri(url)); //Download the raw Json (As data)
-                            //Console.WriteLine("Downloaded");
                             var encoded = Encoding.UTF8.GetString(rawText); //Encodes to UTF-8 to prevent invalid characters
                             definition = onlineAccess(encoded); //Get the definition
                         }
@@ -129,7 +128,7 @@ namespace OntopDictionary
             Json jsonWord = JsonConvert.DeserializeObject<Json>(raw); //Deserialize
 
             for (int i = 0; i < jsonWord.words.Count; i++)
-            {//Go through each word, from the list
+            { //Go through each word, from the list
                 jsonWord.words[i].meaning.addLists(); //Add all the lists containing the types (exclamation, verbs, etc.) into one dictionary
 
                 definition += findDefinition(jsonWord, i); //Find each definition using the object and the index
@@ -157,14 +156,14 @@ namespace OntopDictionary
             string definition = ""; //Default
 
             foreach (KeyValuePair<string, List<Type>> key in jsonWord.words[i].meaning.allWords)
-            {//Go through each type (exclamation, verbs, etc.) in the given word/from index 'i'
+            { //Go through each type (exclamation, verbs, etc.) in the given word/from index 'i'
                 if (key.Value != null) //If the type list contains any definitions
                 {
                     definition += ("Type: ") + (key.Key + "\r\n").ToUpper(); //Append the type itself as a header to the definitions
                     foreach (Type type in key.Value)
-                    {//Go through each type in for the given word/from index 'i'
+                    { //Go through each type in for the given word/from index 'i'
                         definition += ("Definition: " + type.definition + (type.example == null ? "\r\n\n" : "\nExample: " + type.example + "\r\n"));
-                    } //Append the definitions and their examples to the definition itself
+                    } //Append the definitions and their examples (If they exist) to the definition itself
                 }
             }
 
@@ -179,6 +178,11 @@ namespace OntopDictionary
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             offline = checkBox1.Checked; //To set state
+        }
+
+        private void Form1_Deactivate(object sender, EventArgs e)
+        {
+            textBox1.Focus(); //To re-focus the textbox
         }
     }
 }
