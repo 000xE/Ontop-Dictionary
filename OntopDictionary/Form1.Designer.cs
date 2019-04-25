@@ -68,6 +68,7 @@
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(56, 17);
             this.checkBox1.TabIndex = 3;
+            this.checkBox1.TabStop = false;
             this.checkBox1.Text = "Offline";
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
@@ -83,6 +84,7 @@
             this.richTextBox1.ReadOnly = true;
             this.richTextBox1.Size = new System.Drawing.Size(622, 287);
             this.richTextBox1.TabIndex = 4;
+            this.richTextBox1.TabStop = false;
             this.richTextBox1.Text = "";
             // 
             // Form1
