@@ -183,6 +183,14 @@ namespace OntopDictionary
         private void Form1_Deactivate(object sender, EventArgs e)
         {
             textBox1.Focus(); //To re-focus the textbox
+            Opacity = 0.3; //Low opacity (Less visible)
+            FormBorderStyle = FormBorderStyle.None; //Remove control border
+        }
+
+        private void Form1_Activated(object sender, EventArgs e)
+        {
+            Opacity = 0.8; //Higher opacity (More visible)
+            FormBorderStyle = FormBorderStyle.Sizable; //Add control border
         }
     }
 }
