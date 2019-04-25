@@ -19,7 +19,7 @@ namespace OntopDictionary
     //For each meaning
     public class Meaning
     {
-        //List for each type
+        //List for each type (Keep adding more as you go along)
         public List<Type> exclamation { get; set; }
         public List<Type> noun { get; set; }
         public List<Type> verb { get; set; }
@@ -27,8 +27,9 @@ namespace OntopDictionary
         public List<Type> abbreviation { get; set; }
         public List<Type> contraction { get; set; }
         public List<Type> adjective { get; set; }
+        public List<Type> proNoun { get; set; }
 
-        //For spaces
+        //For spaces (Keep adding more as you go along)
         [JsonProperty("exclamation & noun")]
         public List<Type> exclamationNoun { get; set; }
         [JsonProperty("proper noun")]
@@ -37,7 +38,7 @@ namespace OntopDictionary
         //For adding all the types into one big list for ease of use
         public Dictionary<string, List<Type>> allWords = new Dictionary<string, List<Type>>();
         public void addLists()
-        { 
+        { //(Keep adding more as you go along)
             allWords.Add("exclamation", exclamation);
             allWords.Add("noun", noun);
             allWords.Add("verb", verb);
@@ -47,6 +48,7 @@ namespace OntopDictionary
             allWords.Add("adjective", adjective);
             allWords.Add("exclamation & noun", exclamationNoun);
             allWords.Add("proper noun", properNoun);
+            allWords.Add("pronoun", proNoun);
         }
     }
 

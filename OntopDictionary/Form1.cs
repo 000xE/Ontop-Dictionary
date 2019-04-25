@@ -92,7 +92,7 @@ namespace OntopDictionary
             raw = @"{ ""words"":" + raw + "\n}"; //To allow deserializing the list of words 
             //(Added "words:" to let it detect it intiially as a list)
 
-            //Console.WriteLine(raw); //-- For testing
+            Console.WriteLine(raw); //-- For testing
 
             Json jsonWord = JsonConvert.DeserializeObject<Json>(raw); //Deserialize
 
@@ -101,6 +101,7 @@ namespace OntopDictionary
                 jsonWord.words[i].meaning.addLists(); //Add all the lists containing the types (exclamation, verbs, etc.) into one dictionary
 
                 definition += findDefinition(jsonWord, i); //Find each definition using the object and the index
+                //Console.WriteLine(jsonWord.words.Count); //-- For testing
             }
 
             return definition; //Return the definition
