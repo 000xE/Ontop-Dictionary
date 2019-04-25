@@ -88,11 +88,10 @@ namespace OntopDictionary
         private string onlineAccess(string raw)
         { //To get the definition via online
             string definition = ""; //Default
-
             raw = @"{ ""words"":" + raw + "\n}"; //To allow deserializing the list of words 
             //(Added "words:" to let it detect it intiially as a list)
 
-            Console.WriteLine(raw); //-- For testing
+            //Console.WriteLine(raw); //-- For testing
 
             Json jsonWord = JsonConvert.DeserializeObject<Json>(raw); //Deserialize
 
