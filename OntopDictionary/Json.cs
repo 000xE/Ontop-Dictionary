@@ -28,6 +28,7 @@ namespace OntopDictionary
         public List<Type> contraction { get; set; }
         public List<Type> adjective { get; set; }
         public List<Type> proNoun { get; set; }
+        public List<Type> determiner { get; set; }
 
         //For spaces (Keep adding more as you go along)
         [JsonProperty("exclamation & noun")]
@@ -49,6 +50,7 @@ namespace OntopDictionary
             allWords.Add("exclamation & noun", exclamationNoun);
             allWords.Add("proper noun", properNoun);
             allWords.Add("pronoun", proNoun);
+            allWords.Add("determiner", determiner);
         }
     }
 

@@ -27,6 +27,7 @@ namespace OntopDictionary
         public Form1()
         {
             InitializeComponent();
+            //richTextBox1.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Regular);
 
             using (StreamReader r = new StreamReader(offlinePath)) //Reads the dictionary
             {
@@ -37,8 +38,27 @@ namespace OntopDictionary
 
         private void button1_Click(object sender, EventArgs e)
         {
-            textBox2.Clear(); //Clears the textbox first
-            textBox2.Text = getDefinition(); //To get the definition
+            richTextBox1.Clear(); //Clears the textbox first
+            addToText();
+        }
+
+        private void addToText()
+        {
+            //richTextBox1.Text = getDefinition(); //To get the definition
+            string[] lines = getDefinition().Split(Environment.NewLine.ToCharArray());
+
+            int lino = 0;
+            foreach (string line in lines)
+            {
+                if (line.Contains("Type:"))
+                {
+                    richTextBox1.SelectionColor = Color.Aqua;
+                }
+
+                // AppendText is better than rtb.Text += ...
+                richTextBox1.AppendText(line + "\r\n");
+                lino++;
+            }
         }
 
         private string getDefinition()
@@ -62,9 +82,11 @@ namespace OntopDictionary
 
                     using (WebClient wc = new WebClient())
                     {
+                        wc.Proxy = null; //Faster
                         try
                         { //Try get the definition
-                            var rawText = wc.DownloadData(url); //Download the raw Json (As data)
+                            var rawText = wc.DownloadData(new Uri(url)); //Download the raw Json (As data)
+                            //Console.WriteLine("Downloaded");
                             var encoded = Encoding.UTF8.GetString(rawText); //Encodes to UTF-8 to prevent invalid characters
                             definition = onlineAccess(encoded); //Get the definition
                         }
@@ -121,7 +143,6 @@ namespace OntopDictionary
         private string findDefinition(Json jsonWord, int i)
         { //Online access only
             //To print the definition along with type and example
-
             string definition = ""; //Default
 
             foreach (KeyValuePair<string, List<Type>> key in jsonWord.words[i].meaning.allWords)
@@ -131,8 +152,7 @@ namespace OntopDictionary
                     definition += ("Type: ") + (key.Key + "\r\n").ToUpper(); //Append the type itself as a header to the definitions
                     foreach (Type type in key.Value)
                     {//Go through each type in for the given word/from index 'i'
-                        definition += ("Definition: " + type.definition + "\r\n" + "Example: " + type.example + "\r\n")
-                        + ("--------------------------------------------------------------------------------------------------------------------------------------\r\n");
+                        definition += ("Definition: " + type.definition + (type.example == null ? "\r\n\n" : "\nExample: " + type.example + "\r\n"));
                     } //Append the definitions and their examples to the definition itself
                 }
             }
@@ -142,7 +162,7 @@ namespace OntopDictionary
 
         private void textBox1_Leave(object sender, EventArgs e)
         {
-            textBox1.Focus(); //To perma forcus the textbox
+            //textBox1.Focus(); //To perma forcus the textbox
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
