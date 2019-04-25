@@ -12,6 +12,7 @@ using System.Web;
 using Newtonsoft.Json;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace OntopDictionary
 {
@@ -93,6 +94,10 @@ namespace OntopDictionary
 
                     using (WebClient wc = new WebClient())
                     {
+                        //For testing - Getting the time taken for this
+                        Stopwatch stopWatch = new Stopwatch();
+                        stopWatch.Start(); //Start the stopwatch
+
                         try
                         { //Try get the definition
                             wc.Proxy = null; //Faster
@@ -110,6 +115,10 @@ namespace OntopDictionary
                             definition = "ERROR: Unfortunately, this definition page contains special characters which are difficult to remove to be parsed.";
                             Console.WriteLine("Error: " + e);
                         }
+
+                        //For testing - Getting the time taken for this
+                        stopWatch.Stop(); //Stop the stopwatch
+                        Console.WriteLine("Time elapsed: {0}.{1}", stopWatch.Elapsed.Seconds, stopWatch.Elapsed.Milliseconds); //Print the time elapsed
                     }                  
                 }
             }
@@ -184,13 +193,13 @@ namespace OntopDictionary
         {
             textBox1.Focus(); //To re-focus the textbox
             Opacity = 0.3; //Low opacity (Less visible)
-            FormBorderStyle = FormBorderStyle.None; //Remove control border
+            //FormBorderStyle = FormBorderStyle.None; //Remove control border
         }
 
         private void Form1_Activated(object sender, EventArgs e)
         {
             Opacity = 0.8; //Higher opacity (More visible)
-            FormBorderStyle = FormBorderStyle.Sizable; //Add control border
+            //FormBorderStyle = FormBorderStyle.Sizable; //Add control border
         }
     }
 }
