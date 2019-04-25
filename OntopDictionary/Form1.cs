@@ -129,7 +129,7 @@ namespace OntopDictionary
             {//Go through each type (exclamation, verbs, etc.) in the given word/from index 'i'
                 if (key.Value != null) //If the type list contains any definitions
                 {
-                    definition += ("Type: " + key.Key + "\r\n").ToUpper(); //Append the type itself as a header to the definitions
+                    definition += ("Type: ") + (key.Key + "\r\n").ToUpper(); //Append the type itself as a header to the definitions
                     foreach (Type type in key.Value)
                     {//Go through each type in for the given word/from index 'i'
                         definition += ("Definition: " + type.definition + "\r\n" + "Example: " + type.example + "\r\n")
