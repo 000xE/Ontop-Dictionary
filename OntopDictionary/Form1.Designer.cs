@@ -97,7 +97,7 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.textBox1);
             this.Name = "Form1";
-            this.Opacity = 0.5D;
+            this.Opacity = 0.7D;
             this.Text = "On-top Dictionary";
             this.TopMost = true;
             this.ResumeLayout(false);
