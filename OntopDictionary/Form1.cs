@@ -45,19 +45,30 @@ namespace OntopDictionary
         private void addToText()
         {
             //richTextBox1.Text = getDefinition(); //To get the definition
-            string[] lines = getDefinition().Split(Environment.NewLine.ToCharArray());
+            string[] lines = getDefinition().Split(Environment.NewLine.ToCharArray()); //Splits all new lines
 
-            int lino = 0;
+            //TO STYLE THE LINES
             foreach (string line in lines)
-            {
-                if (line.Contains("Type:"))
+            { //Go through each line
+                if (line.Contains("Type:")) //If the line contains the type of the word
                 {
-                    richTextBox1.SelectionColor = Color.Aqua;
+                    richTextBox1.SelectionColor = Color.LightSkyBlue; //Colours it
+                    richTextBox1.SelectionFont = new Font(richTextBox1.SelectionFont, FontStyle.Bold); //Bolds
+                }
+
+                if (line.Contains("Definition:")) //If the line contains the definition of the word
+                {
+                    richTextBox1.SelectionColor = Color.LightGreen; //Colours it
+                    richTextBox1.SelectionFont = new Font(richTextBox1.SelectionFont, FontStyle.Bold); //Bolds
+                }
+                if (line.Contains("Example:")) //If the line contains the example of the word
+                {
+                    richTextBox1.SelectionColor = Color.Gray; //Colours it
+                    richTextBox1.SelectionFont = new Font(richTextBox1.SelectionFont, FontStyle.Bold); //Bolds
                 }
 
                 // AppendText is better than rtb.Text += ...
-                richTextBox1.AppendText(line + "\r\n");
-                lino++;
+                richTextBox1.AppendText(line + "\r\n"); //Appends the line
             }
         }
 
