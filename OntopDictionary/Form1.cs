@@ -20,6 +20,7 @@ namespace OntopDictionary
     {
         //true -- OFFLINE, false -- ONLINE
         bool offline = false;
+        string onlineDefinition = "";
 
         Dictionary<string, string> dictionary = new Dictionary<string, string>(); //Dictionary to store the dictionary!
 
@@ -44,38 +45,35 @@ namespace OntopDictionary
         }
 
         private void addToText()
-        {
+        { //To add to the text itself
             //richTextBox1.Text = getDefinition(); //To get the definition
             string[] lines = getDefinition().Split(Environment.NewLine.ToCharArray()); //Splits all new lines
 
             //TO STYLE THE LINES
             foreach (string line in lines)
             { //Go through each line
-                if (line.Contains("Type:")) //If the line contains the type of the word
-                {
-                    richTextBox1.SelectionColor = Color.LightSkyBlue; //Colours it
-                    richTextBox1.SelectionFont = new Font(richTextBox1.SelectionFont, FontStyle.Bold); //Bolds
-                }
 
-                if (line.Contains("Definition:")) //If the line contains the definition of the word
-                {
-                    richTextBox1.SelectionColor = Color.LightGreen; //Colours it
-                    richTextBox1.SelectionFont = new Font(richTextBox1.SelectionFont, FontStyle.Bold); //Bolds
-                }
-                if (line.Contains("Example:")) //If the line contains the example of the word
-                {
-                    richTextBox1.SelectionColor = Color.Gray; //Colours it
-                    richTextBox1.SelectionFont = new Font(richTextBox1.SelectionFont, FontStyle.Bold); //Bolds
-                }
+                //To color the text
+                colorText(line, "Type:", Color.LightSkyBlue, FontStyle.Bold);
+                colorText(line, "Definition:", Color.LightGreen, FontStyle.Bold);
+                colorText(line, "Example:", Color.Gray, FontStyle.Bold);               
 
                 // AppendText is better than rtb.Text += ...
                 richTextBox1.AppendText(line + "\r\n"); //Appends the line
             }
         }
 
+        private void colorText(string line, string keyWord, Color color, FontStyle style)
+        { //To color the text
+            if (line.Contains(keyWord)) //If the line contains the keyword
+            {
+                richTextBox1.SelectionColor = color; //Colours it
+                richTextBox1.SelectionFont = new Font(richTextBox1.SelectionFont, style); //Styles it
+            }
+        }
+
         private string getDefinition()
         { //To get the definition via offline or online
-
             string definition = "";
 
             if (textBox1.Text.Length > 0) //Ensure the user typed something
@@ -88,38 +86,37 @@ namespace OntopDictionary
                 }
                 else //For online
                 {
-                    string language = "en"; //language to use
-                    string url = "http://googledictionaryapi.eu-gb.mybluemix.net/?define=" + word + "&lang=" + language;
-                    //Credit: https://googledictionaryapi.eu-gb.mybluemix.net
-
-                    using (WebClient wc = new WebClient())
+                    if (onlineDefinition == "ERROR") //If the definition returns an error
                     {
-                        //For testing - Getting the time taken for this
-                        Stopwatch stopWatch = new Stopwatch();
-                        stopWatch.Start(); //Start the stopwatch
+                        definition = "No definition!";
+                        onlineDefinition = ""; //Resets the definition raw data for the next definition
+                    }
+                    else //If the definition isn't an error
+                    {
+                        if (onlineDefinition != "") //When this method is re-called, it will go here after it's downloaded asynchronously
+                        {
+                            definition = onlineAccess(onlineDefinition); //Get the definition from the raw data
+                            onlineDefinition = ""; //Resets the definition raw data for the next definition
+                        }
+                        else //On a new definition
+                        {
+                            string language = "en"; //language to use
+                            string url = "http://googledictionaryapi.eu-gb.mybluemix.net/?define=" + word + "&lang=" + language; //API                                                                                                                            
+                            //Credit: https://googledictionaryapi.eu-gb.mybluemix.net
 
-                        try
-                        { //Try get the definition
-                            wc.Proxy = null; //Faster
-                            var rawText = wc.DownloadData(new Uri(url)); //Download the raw Json (As data)
-                            var encoded = Encoding.UTF8.GetString(rawText); //Encodes to UTF-8 to prevent invalid characters
-                            definition = onlineAccess(encoded); //Get the definition
-                        }
-                        catch (WebException e)
-                        { //Definition not found
-                            definition = "No definition!";
-                            Console.WriteLine("Error: " + e);
-                        }
-                        catch (Newtonsoft.Json.JsonReaderException e)
-                        { //Parser error
-                            definition = "ERROR: Unfortunately, this definition page contains special characters which are difficult to remove to be parsed.";
-                            Console.WriteLine("Error: " + e);
-                        }
+                            using (WebClient wc = new WebClient())
+                            {
+                                wc.Proxy = null; //Faster
 
-                        //For testing - Getting the time taken for this
-                        stopWatch.Stop(); //Stop the stopwatch
-                        Console.WriteLine("Time elapsed: {0}.{1}", stopWatch.Elapsed.Seconds, stopWatch.Elapsed.Milliseconds); //Print the time elapsed
-                    }                  
+                                //Old
+                                //var rawText = wc.DownloadData(new Uri(url)); //Download the raw Json (As data)
+                                //var encoded = Encoding.UTF8.GetString(rawText); //Encodes to UTF-8 to prevent invalid characters
+
+                                wc.DownloadDataCompleted += DownloadDataCompleted; //When download is complete
+                                wc.DownloadDataAsync(new Uri(url)); //Downloads asynchronously
+                            }
+                        }
+                    }
                 }
             }
 
@@ -171,7 +168,7 @@ namespace OntopDictionary
                     definition += ("Type: ") + (key.Key + "\r\n").ToUpper(); //Append the type itself as a header to the definitions
                     foreach (Type type in key.Value)
                     { //Go through each type in for the given word/from index 'i'
-                        definition += ("Definition: " + type.definition + (type.example == null ? "\r\n\n" : "\nExample: " + type.example + "\r\n"));
+                        definition += ("Definition: " + type.definition + (type.example == null ? "\r\n" : "\nExample: " + type.example + "\r\n"));
                     } //Append the definitions and their examples (If they exist) to the definition itself
                 }
             }
@@ -200,6 +197,30 @@ namespace OntopDictionary
         {
             Opacity = 0.8; //Higher opacity (More visible)
             //FormBorderStyle = FormBorderStyle.Sizable; //Add control border
+        }
+
+        private void DownloadDataCompleted(object sender, DownloadDataCompletedEventArgs e)
+        {
+            //For testing - Getting the time taken for this
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start(); //Start the stopwatch
+
+            try
+            { //Try get the definition
+                byte[] raw = e.Result; //Gets the raw data
+                onlineDefinition = Encoding.UTF8.GetString(raw); //Converts it to a string
+            }
+            catch (Exception ex)
+            { //Definition not found
+                Console.WriteLine("Error: " + ex);
+                onlineDefinition = "ERROR";
+            }
+
+            addToText(); //Goes to the add function to recursively check for the definition that's found
+
+            //For testing - Getting the time taken for this
+            stopWatch.Stop(); //Stop the stopwatch
+            Console.WriteLine("Time elapsed: {0}.{1}", stopWatch.Elapsed.Seconds, stopWatch.Elapsed.Milliseconds); //Print the time elapsed
         }
     }
 }
