@@ -6,3 +6,6 @@ Useful if you just wanna look up a word quickly.
 - Online & Offline (Inaccurate) access
 - Styled text to readability
 - Always on top to access easily
+
+## Packages used:
+- Newtonsoft.Json
