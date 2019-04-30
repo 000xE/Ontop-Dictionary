@@ -49,17 +49,20 @@ namespace OntopDictionary
             //richTextBox1.Text = getDefinition(); //To get the definition
             string[] lines = getDefinition().Split(Environment.NewLine.ToCharArray()); //Splits all new lines
 
-            //TO STYLE THE LINES
-            foreach (string line in lines)
-            { //Go through each line
+            //TO ADD STYLE THE LINES
+            if (lines[0] != String.Empty) //Removing the stupid empty line at start
+            {
+                foreach (string line in lines)
+                { //Go through each line
 
-                //To color the text
-                colorText(line, "Type:", Color.LightSkyBlue, FontStyle.Bold);
-                colorText(line, "Definition:", Color.LightGreen, FontStyle.Bold);
-                colorText(line, "Example:", Color.Gray, FontStyle.Bold);               
+                    //To color the text
+                    colorText(line, "Type:", Color.LightSkyBlue, FontStyle.Bold);
+                    colorText(line, "Definition:", Color.LightGreen, FontStyle.Bold);
+                    colorText(line, "Example:", Color.Gray, FontStyle.Bold);
 
-                // AppendText is better than rtb.Text += ...
-                richTextBox1.AppendText(line + "\r\n"); //Appends the line
+                    // AppendText is better than rtb.Text += ...
+                    richTextBox1.AppendText(line + "\r\n"); //Appends the line
+                }
             }
         }
 
