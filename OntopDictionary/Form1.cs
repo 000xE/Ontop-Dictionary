@@ -140,24 +140,45 @@ namespace OntopDictionary
 
                 return json; //Return the json
             }
-            catch (Exception e)
+            catch (WebException e)
             {
-                Console.WriteLine(e);
-                return null;
+                var response = (HttpWebResponse) e.Response;
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
 
         private string onlineAccess(string url)
         {
-            string definition = "API error"; //Default
+            string definition = ""; //Default
 
             dynamic json = getJson(url); //Get json from URL
 
-            if (json != null)
+            if (!(json is int))
             {
-                foreach (JObject result in json)
-                { //Go through each word, from the list
-                    definition += findOnlineDefinition(result); //Find each definition using the object and the index
+                if (json == null)
+                {
+                    definition = "API error";
+                }
+                else
+                {
+                    foreach (JObject result in json)
+                    { //Go through each word, from the list
+                        definition += getOnlineDefinition(result); //Find each definition using the object and the index
+                    }
+                }
+            }
+            else
+            {
+                if (json == 0)
+                {
+                    definition = "No definition!";
                 }
             }
 
@@ -176,7 +197,7 @@ namespace OntopDictionary
             return definition; //Return the definition
         }
         
-        private string findOnlineDefinition(JObject jsonWord)
+        private string getOnlineDefinition(JObject jsonWord)
         { //Online access only
             //To print the definition along with type and example
             string definition = ""; //Default
@@ -191,7 +212,7 @@ namespace OntopDictionary
                 {
                     foreach (JObject example in jsonWord["exampleUses"])
                     {
-                        definition += "\nExample: " + jsonWord["exampleUses"][0]["text"] + "\r\n";
+                        definition += "\nExample: " + example["text"];
                     }
                 }
                 else
