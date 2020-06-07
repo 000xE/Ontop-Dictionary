@@ -56,7 +56,7 @@ namespace OntopDictionary
         private void btnSearch_Click(object sender, EventArgs e)
         {
             richTxtDefinition.Clear(); //Clears the textbox first
-            addToText();
+            addToText(); //Show the definitions
         }
 
         private void setOnlineURL()
