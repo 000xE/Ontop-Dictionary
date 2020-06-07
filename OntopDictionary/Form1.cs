@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using Newtonsoft.Json.Linq;
 
 namespace OntopDictionary
 {
@@ -20,11 +21,25 @@ namespace OntopDictionary
     {
         //true -- OFFLINE, false -- ONLINE
         bool offline = false;
-        string onlineDefinition = "";
 
-        Dictionary<string, string> dictionary = new Dictionary<string, string>(); //Dictionary to store the dictionary!
+        //Ofline access
+        Dictionary<string, List<string>> dictionary = new Dictionary<string, List<string>>(); //Dictionary to store the dictionary!
+        string offlinePath = Application.StartupPath + @"/Resources/076 data.json"; //CHANGE THIS TO WHEREVER THE OFFLINE DICTIONARY (076 data) IS!
 
-        string offlinePath = Application.StartupPath + @"/Resources/dictionary.json"; //CHANGE THIS TO WHEREVER THE dictionary.js IS!
+        //Online access
+        static List<string> sourceDictionaries = new List<string>() {"all", "ahd", "century", "cmu", "macmillan", "wiktionary", "webster", "wordnet"};
+
+        int resultLimit = 10; //The limit of definitions
+        string currentSource = sourceDictionaries[7]; //The current online source of definitions
+        bool useCanonical = false; //To fix spelling mistakes in typed (Inaccurate)
+        string currentWord = ""; //The currently entered word
+
+        string apiKey = ""; //The API key
+        string onlineURL = ""; //The full online URL (set later)
+
+        //Auto-opacity
+        double focusOpacity = 0.8; //Opacity when the form is focused
+        double passiveOpacity = 0.3; //Opacity when the form isn't focused
 
         public Form1()
         {
@@ -34,20 +49,31 @@ namespace OntopDictionary
             using (StreamReader r = new StreamReader(offlinePath)) //Reads the dictionary
             {
                 string json = r.ReadToEnd(); //from start to end
-                dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(json); //Deserializes into the Dictionary
+                dictionary = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(json); //Deserializes into the Dictionary
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnSearch_Click(object sender, EventArgs e)
         {
-            richTextBox1.Clear(); //Clears the textbox first
+            richTxtDefinition.Clear(); //Clears the textbox first
             addToText();
         }
 
-        private void addToText()
+        private void setOnlineURL()
+        {
+            //Set the settings for the online API
+            onlineURL = "https://api.wordnik.com/v4/word.json/" + currentWord + "/definitions?limit=" + resultLimit + "&includeRelated=false&sourceDictionaries=" + currentSource + "&useCanonical=" + useCanonical + "&includeTags=false&api_key=" + apiKey;
+        }
+
+        private async void addToText()
         { //To add to the text itself
-            //richTextBox1.Text = getDefinition(); //To get the definition
-            string[] lines = getDefinition().Split(Environment.NewLine.ToCharArray()); //Splits all new lines
+          //richTextBox1.Text = getDefinition(); //To get the definition
+            Task<string> task = new Task<string>(getDefinition);
+            task.Start();
+
+            string definition = await task;
+
+            string[] lines = definition.Split(Environment.NewLine.ToCharArray()); //Splits all new lines
 
             //TO ADD STYLE THE LINES
             if (lines[0] != String.Empty) //Removing the stupid empty line at start
@@ -61,7 +87,7 @@ namespace OntopDictionary
                     colorText(line, "Example:", Color.Gray, FontStyle.Bold);
 
                     // AppendText is better than rtb.Text += ...
-                    richTextBox1.AppendText(line + "\r\n"); //Appends the line
+                    richTxtDefinition.AppendText(line + "\r\n"); //Appends the line
                 }
             }
         }
@@ -70,8 +96,8 @@ namespace OntopDictionary
         { //To color the text
             if (line.Contains(keyWord)) //If the line contains the keyword
             {
-                richTextBox1.SelectionColor = color; //Colours it
-                richTextBox1.SelectionFont = new Font(richTextBox1.SelectionFont, style); //Styles it
+                richTxtDefinition.SelectionColor = color; //Colours it
+                richTxtDefinition.SelectionFont = new Font(richTxtDefinition.SelectionFont, style); //Styles it
             }
         }
 
@@ -79,69 +105,60 @@ namespace OntopDictionary
         { //To get the definition via offline or online
             string definition = "";
 
-            if (textBox1.Text.Length > 0) //Ensure the user typed something
+            if (txtWord.Text.Length > 0) //Ensure the user typed something
             {
-                string word = textBox1.Text; //Grab the word 
+                currentWord = txtWord.Text; //Grab the word 
 
                 if (offline) //For offline (Inaccurate, sorry)
                 {
-                    definition = offlineAccess(word.ToUpper()); //Convert to uppercase since the dictionary is in uppercase
+                    definition = offlineAccess(currentWord.ToLower()); //Convert to uppercase since the dictionary is in uppercase
                 }
                 else //For online
                 {
-                    if (onlineDefinition == "ERROR") //If the definition returns an error
-                    {
-                        definition = "No definition!";
-                        onlineDefinition = ""; //Resets the definition raw data for the next definition
-                    }
-                    else //If the definition isn't an error
-                    {
-                        if (onlineDefinition != "") //When this method is re-called, it will go here after it's downloaded asynchronously
-                        {
-                            definition = onlineAccess(onlineDefinition); //Get the definition from the raw data
-                            onlineDefinition = ""; //Resets the definition raw data for the next definition
-                        }
-                        else //On a new definition
-                        {
-                            string language = "en"; //language to use
-                            string url = "http://googledictionaryapi.eu-gb.mybluemix.net/?define=" + word + "&lang=" + language; //API                                                                                                                            
-                            //Credit: https://googledictionaryapi.eu-gb.mybluemix.net
-
-                            using (WebClient wc = new WebClient())
-                            {
-                                wc.Proxy = null; //Faster
-
-                                //Old
-                                //var rawText = wc.DownloadData(new Uri(url)); //Download the raw Json (As data)
-                                //var encoded = Encoding.UTF8.GetString(rawText); //Encodes to UTF-8 to prevent invalid characters
-
-                                wc.DownloadDataCompleted += DownloadDataCompleted; //When download is complete
-                                wc.DownloadDataAsync(new Uri(url)); //Downloads asynchronously
-                            }
-                        }
-                    }
+                    setOnlineURL();
+                    definition = onlineAccess(onlineURL); //Get the definition from online
                 }
             }
 
             return definition; //Return the fixed definition
         }
 
-        private string onlineAccess(string raw)
-        { //To get the definition via online
-            string definition = ""; //Default
-            raw = @"{ ""words"":" + raw + "\n}"; //To allow deserializing the list of words 
-            //(Added "words:" to let it detect it intiially as a list)
+        private static dynamic getJson(string url)
+        {
+            try
+            {
+                var request = WebRequest.Create(url);
+                string text;
+                var response = (HttpWebResponse)request.GetResponse();
 
-            //Console.WriteLine(raw); //-- For testing
+                using (var sr = new StreamReader(response.GetResponseStream()))
+                {
+                    text = sr.ReadToEnd(); //Read the url
+                }
 
-            Json jsonWord = JsonConvert.DeserializeObject<Json>(raw); //Deserialize
+                dynamic json = JsonConvert.DeserializeObject(text); //Get the json format
 
-            for (int i = 0; i < jsonWord.words.Count; i++)
-            { //Go through each word, from the list
-                jsonWord.words[i].meaning.addLists(); //Add all the lists containing the types (exclamation, verbs, etc.) into one dictionary
+                return json; //Return the json
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
+        }
 
-                definition += findDefinition(jsonWord, i); //Find each definition using the object and the index
-                //Console.WriteLine(jsonWord.words.Count); //-- For testing
+        private string onlineAccess(string url)
+        {
+            string definition = "API error"; //Default
+
+            dynamic json = getJson(url); //Get json from URL
+
+            if (json != null)
+            {
+                foreach (JObject result in json)
+                { //Go through each word, from the list
+                    definition += findOnlineDefinition(result); //Find each definition using the object and the index
+                }
             }
 
             return definition; //Return the definition
@@ -153,77 +170,96 @@ namespace OntopDictionary
 
             if (dictionary.ContainsKey(word)) //If the dictionary has the word
             {
-                definition = dictionary[word]; //Set the definiton
+                definition = dictionary[word][0]; //Set the definiton
             }
 
             return definition; //Return the definition
         }
         
-        private string findDefinition(Json jsonWord, int i)
+        private string findOnlineDefinition(JObject jsonWord)
         { //Online access only
             //To print the definition along with type and example
             string definition = ""; //Default
 
-            foreach (KeyValuePair<string, List<Type>> key in jsonWord.words[i].meaning.allWords)
-            { //Go through each type (exclamation, verbs, etc.) in the given word/from index 'i'
-                if (key.Value != null) //If the type list contains any definitions
+            if (jsonWord != null) //If the type list contains any definitions
+            {
+                definition += ("Type: ") + (jsonWord["partOfSpeech"] + "\r\n").ToUpper(); //Append the type itself as a header to the definitions
+                definition += ("Definition: ") + (jsonWord["text"]); //Append the definition
+
+                //Append each example (If they exist)
+                if (jsonWord["exampleUses"].Count() > 0)
                 {
-                    definition += ("Type: ") + (key.Key + "\r\n").ToUpper(); //Append the type itself as a header to the definitions
-                    foreach (Type type in key.Value)
-                    { //Go through each type in for the given word/from index 'i'
-                        definition += ("Definition: " + type.definition + (type.example == null ? "\r\n" : "\nExample: " + type.example + "\r\n"));
-                    } //Append the definitions and their examples (If they exist) to the definition itself
+                    foreach (JObject example in jsonWord["exampleUses"])
+                    {
+                        definition += "\nExample: " + jsonWord["exampleUses"][0]["text"] + "\r\n";
+                    }
+                }
+                else
+                {
+                    definition += "\r\n"; //Append blank line
                 }
             }
 
             return definition; //Return the definition
         }
 
-        private void textBox1_Leave(object sender, EventArgs e)
+        private void txtWord_Leave(object sender, EventArgs e)
         {
             //textBox1.Focus(); //To perma forcus the textbox
         }
 
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        private void checkOffline_CheckedChanged(object sender, EventArgs e)
         {
-            offline = checkBox1.Checked; //To set state
+            offline = checkOffline.Checked; //To set offline/online
         }
 
         private void Form1_Deactivate(object sender, EventArgs e)
         {
-            textBox1.Focus(); //To re-focus the textbox
-            Opacity = 0.3; //Low opacity (Less visible)
+            txtWord.Focus(); //To re-focus the textbox
+
+            if (checkDynamicOpacity.Checked)
+            {
+                Opacity = passiveOpacity; //Low opacity (Less visible)
+            }
+            else
+            {
+                Opacity = (double)trackOpacity.Value / 10; //Set to trackbar opacity
+            }
+
             //FormBorderStyle = FormBorderStyle.None; //Remove control border
         }
 
         private void Form1_Activated(object sender, EventArgs e)
         {
-            Opacity = 0.8; //Higher opacity (More visible)
+            if (checkDynamicOpacity.Checked)
+            {
+                Opacity = focusOpacity; //Higher opacity (More visible)
+            }
+            else
+            {
+                Opacity = (double)trackOpacity.Value / 10; //Set to trackbar opacity
+            }
+
             //FormBorderStyle = FormBorderStyle.Sizable; //Add control border
         }
 
-        private void DownloadDataCompleted(object sender, DownloadDataCompletedEventArgs e)
+        private void trackOpacity_ValueChanged(object sender, EventArgs e)
         {
-            //For testing - Getting the time taken for this
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start(); //Start the stopwatch
+            Opacity = (double)trackOpacity.Value / 10; //Set to trackbar opacity
+        }
 
-            try
-            { //Try get the definition
-                byte[] raw = e.Result; //Gets the raw data
-                onlineDefinition = Encoding.UTF8.GetString(raw); //Converts it to a string
+        private void checkDynamicOpacity_CheckedChanged(object sender, EventArgs e)
+        {
+            trackOpacity.Enabled = !checkDynamicOpacity.Checked;
+
+            if (checkDynamicOpacity.Checked)
+            {
+                Opacity = focusOpacity; //Higher opacity (More visible)
             }
-            catch (Exception ex)
-            { //Definition not found
-                Console.WriteLine("Error: " + ex);
-                onlineDefinition = "ERROR";
+            else
+            {
+                Opacity = (double)trackOpacity.Value / 10; //Set to trackbar opacity
             }
-
-            addToText(); //Goes to the add function to recursively check for the definition that's found
-
-            //For testing - Getting the time taken for this
-            stopWatch.Stop(); //Stop the stopwatch
-            Console.WriteLine("Time elapsed: {0}.{1}", stopWatch.Elapsed.Seconds, stopWatch.Elapsed.Milliseconds); //Print the time elapsed
         }
     }
 }
