@@ -35,8 +35,15 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.trackOpacity = new System.Windows.Forms.TrackBar();
             this.checkDynamicOpacity = new System.Windows.Forms.CheckBox();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.comboSource = new System.Windows.Forms.ComboBox();
+            this.numericResultLimit = new System.Windows.Forms.NumericUpDown();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackOpacity)).BeginInit();
+            this.panel2.SuspendLayout();
+            this.panel3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericResultLimit)).BeginInit();
             this.SuspendLayout();
             // 
             // txtWord
@@ -70,11 +77,11 @@
             // 
             this.checkOffline.AutoSize = true;
             this.checkOffline.BackColor = System.Drawing.Color.Transparent;
-            this.checkOffline.Dock = System.Windows.Forms.DockStyle.Left;
+            this.checkOffline.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.checkOffline.ForeColor = System.Drawing.Color.White;
-            this.checkOffline.Location = new System.Drawing.Point(0, 0);
+            this.checkOffline.Location = new System.Drawing.Point(0, 44);
             this.checkOffline.Name = "checkOffline";
-            this.checkOffline.Size = new System.Drawing.Size(56, 61);
+            this.checkOffline.Size = new System.Drawing.Size(90, 17);
             this.checkOffline.TabIndex = 3;
             this.checkOffline.TabStop = false;
             this.checkOffline.Text = "Offline";
@@ -100,8 +107,8 @@
             // 
             this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(24)))), ((int)(((byte)(24)))));
             this.panel1.Controls.Add(this.trackOpacity);
-            this.panel1.Controls.Add(this.checkDynamicOpacity);
-            this.panel1.Controls.Add(this.checkOffline);
+            this.panel1.Controls.Add(this.panel2);
+            this.panel1.Controls.Add(this.panel3);
             this.panel1.Controls.Add(this.btnSearch);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel1.Location = new System.Drawing.Point(0, 285);
@@ -113,10 +120,10 @@
             // 
             this.trackOpacity.Dock = System.Windows.Forms.DockStyle.Fill;
             this.trackOpacity.Enabled = false;
-            this.trackOpacity.Location = new System.Drawing.Point(56, 0);
+            this.trackOpacity.Location = new System.Drawing.Point(90, 0);
             this.trackOpacity.Minimum = 1;
             this.trackOpacity.Name = "trackOpacity";
-            this.trackOpacity.Size = new System.Drawing.Size(481, 61);
+            this.trackOpacity.Size = new System.Drawing.Size(442, 61);
             this.trackOpacity.TabIndex = 4;
             this.trackOpacity.Value = 10;
             this.trackOpacity.ValueChanged += new System.EventHandler(this.trackOpacity_ValueChanged);
@@ -127,16 +134,59 @@
             this.checkDynamicOpacity.BackColor = System.Drawing.Color.Transparent;
             this.checkDynamicOpacity.Checked = true;
             this.checkDynamicOpacity.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkDynamicOpacity.Dock = System.Windows.Forms.DockStyle.Right;
+            this.checkDynamicOpacity.Dock = System.Windows.Forms.DockStyle.Fill;
             this.checkDynamicOpacity.ForeColor = System.Drawing.Color.White;
-            this.checkDynamicOpacity.Location = new System.Drawing.Point(537, 0);
+            this.checkDynamicOpacity.Location = new System.Drawing.Point(0, 0);
             this.checkDynamicOpacity.Name = "checkDynamicOpacity";
-            this.checkDynamicOpacity.Size = new System.Drawing.Size(85, 61);
+            this.checkDynamicOpacity.Size = new System.Drawing.Size(90, 44);
             this.checkDynamicOpacity.TabIndex = 5;
             this.checkDynamicOpacity.TabStop = false;
             this.checkDynamicOpacity.Text = "Auto opacity";
             this.checkDynamicOpacity.UseVisualStyleBackColor = false;
             this.checkDynamicOpacity.CheckedChanged += new System.EventHandler(this.checkDynamicOpacity_CheckedChanged);
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.checkDynamicOpacity);
+            this.panel2.Controls.Add(this.checkOffline);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panel2.Location = new System.Drawing.Point(532, 0);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(90, 61);
+            this.panel2.TabIndex = 7;
+            // 
+            // panel3
+            // 
+            this.panel3.Controls.Add(this.numericResultLimit);
+            this.panel3.Controls.Add(this.comboSource);
+            this.panel3.Dock = System.Windows.Forms.DockStyle.Left;
+            this.panel3.Location = new System.Drawing.Point(0, 0);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(90, 61);
+            this.panel3.TabIndex = 6;
+            // 
+            // comboSource
+            // 
+            this.comboSource.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.comboSource.FormattingEnabled = true;
+            this.comboSource.Location = new System.Drawing.Point(0, 40);
+            this.comboSource.Name = "comboSource";
+            this.comboSource.Size = new System.Drawing.Size(90, 21);
+            this.comboSource.TabIndex = 7;
+            this.comboSource.SelectedIndexChanged += new System.EventHandler(this.comboSource_SelectedIndexChanged);
+            // 
+            // numericResultLimit
+            // 
+            this.numericResultLimit.Dock = System.Windows.Forms.DockStyle.Top;
+            this.numericResultLimit.Location = new System.Drawing.Point(0, 0);
+            this.numericResultLimit.Name = "numericResultLimit";
+            this.numericResultLimit.Size = new System.Drawing.Size(90, 20);
+            this.numericResultLimit.TabIndex = 8;
+            this.numericResultLimit.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
             // 
             // Form1
             // 
@@ -156,6 +206,10 @@
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackOpacity)).EndInit();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
+            this.panel3.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.numericResultLimit)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -170,6 +224,10 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TrackBar trackOpacity;
         private System.Windows.Forms.CheckBox checkDynamicOpacity;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.ComboBox comboSource;
+        private System.Windows.Forms.NumericUpDown numericResultLimit;
     }
 }
 

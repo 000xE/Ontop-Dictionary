@@ -44,6 +44,7 @@ namespace OntopDictionary
         public Form1()
         {
             InitializeComponent();
+            loadComboBox();
             //richTextBox1.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Regular);
 
             using (StreamReader r = new StreamReader(offlinePath)) //Reads the dictionary
@@ -51,6 +52,17 @@ namespace OntopDictionary
                 string json = r.ReadToEnd(); //from start to end
                 dictionary = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(json); //Deserializes into the Dictionary
             }
+        }
+
+        private void loadComboBox()
+        {
+            //Add each source to the combobox
+            foreach (string source in sourceDictionaries)
+            {
+                comboSource.Items.Add(source);
+            }
+
+            comboSource.SelectedIndex = 7; //Set default source
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
@@ -62,6 +74,7 @@ namespace OntopDictionary
         private void setOnlineURL()
         {
             //Set the settings for the online API
+            resultLimit = (int) numericResultLimit.Value;
             onlineURL = "https://api.wordnik.com/v4/word.json/" + currentWord + "/definitions?limit=" + resultLimit + "&includeRelated=false&sourceDictionaries=" + currentSource + "&useCanonical=" + useCanonical + "&includeTags=false&api_key=" + apiKey;
         }
 
@@ -143,9 +156,9 @@ namespace OntopDictionary
             catch (WebException e)
             {
                 var response = (HttpWebResponse) e.Response;
-                if (response.StatusCode == HttpStatusCode.NotFound)
+                if (response.StatusCode == HttpStatusCode.NotFound) //If the status code is 404
                 {
-                    return 0;
+                    return 404;
                 }
                 else
                 {
@@ -160,13 +173,13 @@ namespace OntopDictionary
 
             dynamic json = getJson(url); //Get json from URL
 
-            if (!(json is int))
+            if (!(json is int)) //If it's not a status code
             {
-                if (json == null)
+                if (json == null) //If the json is null/if an unknown error is found
                 {
                     definition = "API error";
                 }
-                else
+                else  //If the json is not null
                 {
                     foreach (JObject result in json)
                     { //Go through each word, from the list
@@ -176,7 +189,7 @@ namespace OntopDictionary
             }
             else
             {
-                if (json == 0)
+                if (json == 404)
                 {
                     definition = "No definition!";
                 }
@@ -230,6 +243,17 @@ namespace OntopDictionary
         private void checkOffline_CheckedChanged(object sender, EventArgs e)
         {
             offline = checkOffline.Checked; //To set offline/online
+
+            if (offline)
+            {
+                numericResultLimit.Enabled = false; //Disable the result limit input
+                comboSource.Enabled = false;  //Disable source dictionary combobox
+            }
+            else
+            {
+                numericResultLimit.Enabled = true; //Enable the result limit input
+                comboSource.Enabled = true;  //Enable source dictionary combobox
+            }
         }
 
         private void Form1_Deactivate(object sender, EventArgs e)
@@ -269,7 +293,7 @@ namespace OntopDictionary
 
         private void checkDynamicOpacity_CheckedChanged(object sender, EventArgs e)
         {
-            trackOpacity.Enabled = !checkDynamicOpacity.Checked;
+            trackOpacity.Enabled = !checkDynamicOpacity.Checked; //Enable/disable the trackbar
 
             if (checkDynamicOpacity.Checked)
             {
@@ -279,6 +303,11 @@ namespace OntopDictionary
             {
                 Opacity = (double)trackOpacity.Value / 10; //Set to trackbar opacity
             }
+        }
+
+        private void comboSource_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            currentSource = sourceDictionaries[comboSource.SelectedIndex]; //Set the current source
         }
     }
 }
