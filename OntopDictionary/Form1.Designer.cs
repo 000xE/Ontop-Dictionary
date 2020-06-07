@@ -112,6 +112,7 @@
             // trackOpacity
             // 
             this.trackOpacity.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.trackOpacity.Enabled = false;
             this.trackOpacity.Location = new System.Drawing.Point(56, 0);
             this.trackOpacity.Minimum = 1;
             this.trackOpacity.Name = "trackOpacity";
@@ -124,6 +125,8 @@
             // 
             this.checkDynamicOpacity.AutoSize = true;
             this.checkDynamicOpacity.BackColor = System.Drawing.Color.Transparent;
+            this.checkDynamicOpacity.Checked = true;
+            this.checkDynamicOpacity.CheckState = System.Windows.Forms.CheckState.Checked;
             this.checkDynamicOpacity.Dock = System.Windows.Forms.DockStyle.Right;
             this.checkDynamicOpacity.ForeColor = System.Drawing.Color.White;
             this.checkDynamicOpacity.Location = new System.Drawing.Point(537, 0);
