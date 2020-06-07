@@ -215,10 +215,8 @@ namespace OntopDictionary
                         definition += "\nExample: " + example["text"];
                     }
                 }
-                else
-                {
-                    definition += "\r\n"; //Append blank line
-                }
+
+                definition += "\r\n"; //Append blank line
             }
 
             return definition; //Return the definition
