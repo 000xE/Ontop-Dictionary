@@ -27,10 +27,10 @@ namespace OntopDictionary
         string offlinePath = Application.StartupPath + @"/Resources/076 data.json"; //CHANGE THIS TO WHEREVER THE OFFLINE DICTIONARY (076 data) IS!
 
         //Online access
-        static List<string> sourceDictionaries = new List<string>() {"all", "ahd", "century", "cmu", "macmillan", "wiktionary", "webster", "wordnet"};
+        static List<string> sourceDictionaries = new List<string>() {"all", "ahd", "century", "ahd-legacy", "macmillan", "wiktionary", "webster", "wordnet"};
 
         int resultLimit = 10; //The limit of definitions
-        string currentSource = sourceDictionaries[7]; //The current online source of definitions
+        string currentSource = sourceDictionaries[3]; //The current online source of definitions
         bool useCanonical = false; //To fix spelling mistakes in typed (Inaccurate)
         string currentWord = ""; //The currently entered word
 
@@ -62,7 +62,7 @@ namespace OntopDictionary
                 comboSource.Items.Add(source);
             }
 
-            comboSource.SelectedIndex = 7; //Set default source
+            comboSource.SelectedIndex = 3; //Set default source
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
@@ -247,12 +247,12 @@ namespace OntopDictionary
             if (offline)
             {
                 numericResultLimit.Enabled = false; //Disable the result limit input
-                comboSource.Enabled = false;  //Disable source dictionary combobox
+                comboSource.Enabled = false;  //Disable source combobox
             }
             else
             {
                 numericResultLimit.Enabled = true; //Enable the result limit input
-                comboSource.Enabled = true;  //Enable source dictionary combobox
+                comboSource.Enabled = true;  //Enable source combobox
             }
         }
 
